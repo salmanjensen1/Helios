@@ -47,40 +47,40 @@ class grade_test(object):
                 areas.append(cont_area)
             return areas
 
-        # cnts = cv.findContours(edged.copy(), cv.RETR_EXTERNAL,
-        #                        cv.CHAIN_APPROX_SIMPLE)
-        # cnts = imutils.grab_contours(cnts)
-        # docCnt = None
-        # # ensure that at least one contour was found
-        # if len(cnts) > 0:
-        #     # sort the contours according to their size in
-        #     # descending order
-        #     cnts = sorted(cnts, key=cv.contourArea, reverse=True)
-        #     # loop over the sorted contours
-        #     for c in cnts:
-        #         # approximate the contour
-        #         peri = cv.arcLength(c, True)
-        #         approx = cv.approxPolyDP(c, 0.02 * peri, True)
-        #         # if our approximated contour has four points,
-        #         # then we can assume we have found the paper
-        #         if len(approx) == 4:
-        #             docCnt = approx
-        #             break
-        #
-        # # perspective transform
-        # if docCnt is not None:
-        #     paper = four_point_transform(img, docCnt.reshape(4, 2))
-        #     img = paper
-        #     warped = four_point_transform(blurred_img, docCnt.reshape(4, 2))
-        #     thresh = cv.threshold(warped, 0, 255,
-        #                           cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
-        # else:
-        #     thresh = cv.threshold(blurred_img, 0, 255,
-        #                           cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
+        cnts = cv.findContours(edged.copy(), cv.RETR_EXTERNAL,
+                               cv.CHAIN_APPROX_SIMPLE)
+        cnts = imutils.grab_contours(cnts)
+        docCnt = None
+        # ensure that at least one contour was found
+        if len(cnts) > 0:
+            # sort the contours according to their size in
+            # descending order
+            cnts = sorted(cnts, key=cv.contourArea, reverse=True)
+            # loop over the sorted contours
+            for c in cnts:
+                # approximate the contour
+                peri = cv.arcLength(c, True)
+                approx = cv.approxPolyDP(c, 0.02 * peri, True)
+                # if our approximated contour has four points,
+                # then we can assume we have found the paper
+                if len(approx) == 4:
+                    docCnt = approx
+                    break
+
+        # perspective transform
+        if docCnt is not None:
+            paper = four_point_transform(img, docCnt.reshape(4, 2))
+            img = paper
+            warped = four_point_transform(blurred_img, docCnt.reshape(4, 2))
+            thresh = cv.threshold(warped, 0, 255,
+                                  cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
+        else:
+            thresh = cv.threshold(blurred_img, 0, 255,
+                                  cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
         # # masked = cv.resize(masked, (900, 820))
         # thresh
-        thresh = cv.threshold(blurred_img, 0, 255,
-                              cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
+        # thresh = cv.threshold(blurred_img, 0, 255,
+        #                       cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
         cnts = cv.findContours(thresh.copy(), cv.RETR_LIST,
                                cv.CHAIN_APPROX_SIMPLE)
         cnts = imutils.grab_contours(cnts)
