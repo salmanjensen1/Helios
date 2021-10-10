@@ -9,6 +9,28 @@ from imutils import contours
 
 
 class grade_test(object):
+    sorted_answer_key = []
+    unsorted_answer_key = []
+    def readTextFile(self, textPath):
+        print(textPath)
+        input_file = open(textPath, 'r')
+        self.unsorted_answer_key = input_file.read().split('\n')[:-1]
+        print(self.unsorted_answer_key)
+        self.sorted_answer_key = [""]*len(self.unsorted_answer_key)
+        self.sortAnswerKey()
+
+    def sortAnswerKey(self):
+        linear = 0
+        for i in range(0, 16, 4):
+            for j in range(i, i + (7 * 16), 16):
+                for k in range(j, j + 4):
+                    if (k < len(self.unsorted_answer_key)):
+                        self.sorted_answer_key[linear] = self.unsorted_answer_key[k]
+                        linear = linear + 1
+                    else:
+                        break
+        print(self.sorted_answer_key)
+        print("Of here")
 
     def grade(image_path):
 
@@ -23,7 +45,7 @@ class grade_test(object):
 
         ############################################################
         img = cv.imread(args["image"])
-        # img = cv.resize(img, (950, 1000))
+        # img = cv.resize(img, (1280, 720))
         cv.imshow("or", img)
         cv.waitKey(0)
         blank = np.zeros(img.shape[:2], dtype='uint8')
@@ -47,40 +69,40 @@ class grade_test(object):
                 areas.append(cont_area)
             return areas
 
-        cnts = cv.findContours(edged.copy(), cv.RETR_EXTERNAL,
-                               cv.CHAIN_APPROX_SIMPLE)
-        cnts = imutils.grab_contours(cnts)
-        docCnt = None
-        # ensure that at least one contour was found
-        if len(cnts) > 0:
-            # sort the contours according to their size in
-            # descending order
-            cnts = sorted(cnts, key=cv.contourArea, reverse=True)
-            # loop over the sorted contours
-            for c in cnts:
-                # approximate the contour
-                peri = cv.arcLength(c, True)
-                approx = cv.approxPolyDP(c, 0.02 * peri, True)
-                # if our approximated contour has four points,
-                # then we can assume we have found the paper
-                if len(approx) == 4:
-                    docCnt = approx
-                    break
-
-        # perspective transform
-        if docCnt is not None:
-            paper = four_point_transform(img, docCnt.reshape(4, 2))
-            img = paper
-            warped = four_point_transform(blurred_img, docCnt.reshape(4, 2))
-            thresh = cv.threshold(warped, 0, 255,
-                                  cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
-        else:
-            thresh = cv.threshold(blurred_img, 0, 255,
-                                  cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
+        # cnts = cv.findContours(edged.copy(), cv.RETR_EXTERNAL,
+        #                        cv.CHAIN_APPROX_SIMPLE)
+        # cnts = imutils.grab_contours(cnts)
+        # docCnt = None
+        # # ensure that at least one contour was found
+        # if len(cnts) > 0:
+        #     # sort the contours according to their size in
+        #     # descending order
+        #     cnts = sorted(cnts, key=cv.contourArea, reverse=True)
+        #     # loop over the sorted contours
+        #     for c in cnts:
+        #         # approximate the contour
+        #         peri = cv.arcLength(c, True)
+        #         approx = cv.approxPolyDP(c, 0.02 * peri, True)
+        #         # if our approximated contour has four points,
+        #         # then we can assume we have found the paper
+        #         if len(approx) == 4:
+        #             docCnt = approx
+        #             break
+        #
+        # # perspective transform
+        # if docCnt is not None:
+        #     paper = four_point_transform(img, docCnt.reshape(4, 2))
+        #     img = paper
+        #     warped = four_point_transform(blurred_img, docCnt.reshape(4, 2))
+        #     thresh = cv.threshold(warped, 0, 255,
+        #                           cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
+        # else:
+        #     thresh = cv.threshold(blurred_img, 0, 255,
+        #                           cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
         # # masked = cv.resize(masked, (900, 820))
         # thresh
-        # thresh = cv.threshold(blurred_img, 0, 255,
-        #                       cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
+        thresh = cv.threshold(blurred_img, 0, 255,
+                              cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
         cnts = cv.findContours(thresh.copy(), cv.RETR_LIST,
                                cv.CHAIN_APPROX_SIMPLE)
         cnts = imutils.grab_contours(cnts)
@@ -92,7 +114,7 @@ class grade_test(object):
             (x, y, w, h) = cv.boundingRect(c)
             ar = w / float(h)
             # print(ar, w, h)
-            if w >= 10 and h >= 10 and 0.9 <= ar <= 1.1:
+            if w >= 22 and h >= 22 and 0.9 <= ar <= 1.1:
                 questionCnts.append(c)
 
         # sort the question contours top-to-bottom, then initialize
@@ -105,27 +127,29 @@ class grade_test(object):
 
         questionCnts = contours.sort_contours(questionCnts,
                                               method="top-to-bottom")[0]
-        # questionCnts = sorted(questionCnts, key=lambda ctr: cv.boundingRect(ctr)[0] + cv.boundingRect(ctr)[1] * thresh.shape[1] )
 
         # area = find_contour_areas(questionCnts)
         # print(area)
 
         correct = 0
-        # # each question has 5 possible answers, to loop over the
-        # # question in batches of 5
-        # newCnts = []
-        # for i in range(16):
-        #     temp = questionCnts[i * 12:(i + 1) * 12]
-        #     temp = temp[::-1]
-        #     newCnts += temp
-        # questionCnts = newCnts
+        # each question has 5 possible answers, to loop over the
+        # question in batches of 5
+        newCnts = []
+        for i in range(25):
+            temp = questionCnts[i * 16:(i + 1) * 16]
+            temp = temp[::-1]
+            newCnts += temp
+        questionCnts = newCnts
+        answers = [""]*100
+        row = 0
+        column = 0
         for (q, i) in enumerate(np.arange(0, len(questionCnts), 4)):
             # sort the contours for the current question from
             # left to right, then initialize the index of the
             # bubbled answer
+            print(q)
             cnts = contours.sort_contours(questionCnts[i:i + 4])[0]
             bubbled = None
-
             for i, j in enumerate(cnts):
                 # construct a mask that reveals only the current
                 # "bubble" for the question
@@ -145,6 +169,14 @@ class grade_test(object):
                 if bubbled is None or total > bubbled[0]:
                     bubbled = (total, i)
             print(bubbled)
+            if (q != 0 and q%4 == 0):
+                column = 0
+                row+=1
+            answers[(row*25)+column] = bubbled[1]
+            column+=1
+            print("COLUMN NO", (row*25)+column)
+
+
         # loop over the sorted contours
 
         cv.drawContours(img, questionCnts, -1, (0, 255, 0), 2)

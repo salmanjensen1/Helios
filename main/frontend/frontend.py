@@ -16,6 +16,7 @@ class Ui_MainWindow(object):
     def browseImage(self):
         imagePath = QtWidgets.QFileDialog.getOpenFileName(None, 'Open File', '.', '(*.jpg *.jpeg *.png *.gif)')
         self.lineEdit_3.setText(imagePath[0])
+        print(imagePath[0])
         grade_test.grade(imagePath[0])
 
     def browseText(self):

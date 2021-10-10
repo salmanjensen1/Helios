@@ -10,9 +10,12 @@ import os
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication, QFileDialog
+from main.backend.LoadFromFile import grade_test
 
 
 class Ui_OMRwindow(object):
+    array = []
+
     def setupUi(self, VirtualOMR):
         VirtualOMR.setObjectName("VirtualOMR")
         VirtualOMR.resize(1174, 868)
@@ -2148,23 +2151,20 @@ class Ui_OMRwindow(object):
 
     def select(self):
         stringg = "radioButton_"
-        global array
-        array = []
+        self.array = []
         for i in range(1, 101):
             char = stringg + str(i) + 'a'
-            print(char)
             if self.__getattribute__(char).isChecked():
-                array.append('a')
+                self.array.append('a')
             char = stringg + str(i) + 'b'
             if self.__getattribute__(char).isChecked():
-                array.append('b')
+                self.array.append('b')
             char = stringg + str(i) + 'c'
             if self.__getattribute__(char).isChecked():
-                array.append('c')
+                self.array.append('c')
             char = stringg + str(i) + 'd'
             if self.__getattribute__(char).isChecked():
-                array.append('d')
-        print(array)
+                self.array.append('d')
 
     def retranslateUi(self, VirtualOMR):
         _translate = QtCore.QCoreApplication.translate
@@ -2677,9 +2677,12 @@ class Ui_OMRwindow(object):
         self.label_3.setText(_translate("VirtualOMR", "37."))
 
     def save_file(self):
-        print(array)
+        # grade_test.getAnswerKey(self.array)
+        grade = grade_test()
         filename = QtWidgets.QFileDialog.getSaveFileName(None, 'Save OMR', '', "Text Files (*.txt);;All Files (*)",
                                                          options=QtWidgets.QFileDialog.DontUseNativeDialog)
+        print(filename[0])
+
         if filename[0] == '':
             return 0
 
@@ -2689,9 +2692,10 @@ class Ui_OMRwindow(object):
             filename = filename[0]
 
         with open(filename, 'w') as fp:
-            for i in array:
+            for i in self.array:
                 fp.write(i+'\n')
-
+        grade.readTextFile(filename)
+        fp.close()
 
 
 if __name__ == "__main__":
