@@ -10,29 +10,27 @@ from imutils import contours
 
 class grade_test(object):
     sorted_answer_key = []
-    global unsorted_answer_key
 
     def readTextFile(self, textPath):
         linear = 0
         input_file = open(textPath, 'r')
-        unsorted_answer_key = input_file.read().split('\n')[:-1]
-        for i in unsorted_answer_key:
+        grade_test.unsorted_answer_key = input_file.read().split('\n')[:-1]
+        for i in grade_test.unsorted_answer_key:
             print(i)
             x = str(i.split(",")[1])
             print(x)
-            if(x =='a'):
-                unsorted_answer_key[linear] = 0
-            elif(x=='b'):
-                unsorted_answer_key[linear] = 1
-            elif(x=='c'):
-                unsorted_answer_key[linear] = 2
-            elif(x=='d'):
-                unsorted_answer_key[linear] = 3
-            linear+=1
-        print(unsorted_answer_key)
+            if (x == 'a'):
+                grade_test.unsorted_answer_key[linear] = 0
+            elif (x == 'b'):
+                grade_test.unsorted_answer_key[linear] = 1
+            elif (x == 'c'):
+                grade_test.unsorted_answer_key[linear] = 2
+            elif (x == 'd'):
+                grade_test.unsorted_answer_key[linear] = 3
+            linear += 1
+        print(grade_test.unsorted_answer_key)
 
     def grade(self, image_path):
-
         # default_image = os.path.join("C:\\", "Users", "salma", "Desktop", "SPL-1", "main", "../Images", "test20.png")
         default_image = image_path
         parser = argparse.ArgumentParser()  # take command line arguments
@@ -57,7 +55,6 @@ class grade_test(object):
                                       cv.BORDER_DEFAULT)  # the second parameter is kernel size and it is always odd tuple
         # Apply blurred image to detect edges
         edged = cv.Canny(blurred_img, 25, 80)  # 2nd and 3rd parameter are threshold values
-
 
         # Detect Contours
         # cnts, hierarchy = cv.findContours(edged, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
@@ -91,7 +88,6 @@ class grade_test(object):
         questionCnts = contours.sort_contours(questionCnts,
                                               method="top-to-bottom")[0]
 
-
         correct = 0
         newCnts = []
         for i in range(19):
@@ -103,6 +99,8 @@ class grade_test(object):
         row = 0
         column = 0
         for (q, i) in enumerate(np.arange(0, len(questionCnts), 4)):
+            if q >= len(grade_test.unsorted_answer_key):
+                break
             # sort the contours for the current question from
             # left to right, then initialize the index of the
             # bubbled answer
@@ -136,7 +134,7 @@ class grade_test(object):
             column = column + 19
 
             color = (0, 0, 255)
-            k = unsorted_answer_key[q]
+            k = grade_test.unsorted_answer_key[q]
             # check to see if the bubbled answer is correct
             if k == answers[q]:
                 color = (0, 255, 0)
@@ -144,9 +142,10 @@ class grade_test(object):
             # draw the outline of the correct answer on the test
             cv.drawContours(img, [cnts[k]], -1, color, 3)
 
+            print(f"correct answers: {correct}")
             print("[INFO] score: {:.2f}%".format(correct))
             cv.putText(img, "{:.2f}%".format(correct), (10, 30),
-                        cv.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+                       cv.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
         # loop over the sorted contours
 
         cv.drawContours(img, questionCnts, -1, (0, 255, 0), 2)
