@@ -3,7 +3,7 @@ import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog, QApplication, QFileDialog
 from VirtualOMR import Ui_OMRwindow
-from main.backend.LoadFromFile import grade_test
+from LoadFromFile import grade_test
 
 
 class Ui_MainWindow(object):

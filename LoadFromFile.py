@@ -129,7 +129,7 @@ class grade_test(object):
                 column = row
             answers[column] = bubbled[1]
             print("COLUMN NO", column)
-            column = column + 19
+            column = column + 16
 
         for q in range(len(grade_test.unsorted_answer_key)):
             color = (0, 0, 255)
