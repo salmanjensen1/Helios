@@ -2693,7 +2693,7 @@ class Ui_OMRwindow(object):
 
         with open(filename, 'w') as fp:
             for i in self.array:
-                fp.write(i+'\n')
+                fp.write('1,'+i+'\n')
         grade.readTextFile(filename)
         fp.close()
 

@@ -17,11 +17,14 @@ class Ui_MainWindow(object):
         imagePath = QtWidgets.QFileDialog.getOpenFileName(None, 'Open File', '.', '(*.jpg *.jpeg *.png *.gif)')
         self.lineEdit_3.setText(imagePath[0])
         print(imagePath[0])
-        grade_test.grade(imagePath[0])
+        grade_readImg = grade_test()
+        grade_readImg.grade(imagePath[0])
 
     def browseText(self):
         textPath = QtWidgets.QFileDialog.getOpenFileName(None, 'Open File', '.', '(*.txt)')
         self.lineEdit_2.setText(textPath[0])
+        grade_readtext = grade_test()
+        grade_readtext.readTextFile(textPath[0])
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")

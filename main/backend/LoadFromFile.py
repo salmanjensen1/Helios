@@ -10,29 +10,28 @@ from imutils import contours
 
 class grade_test(object):
     sorted_answer_key = []
-    unsorted_answer_key = []
+    global unsorted_answer_key
+
     def readTextFile(self, textPath):
-        print(textPath)
-        input_file = open(textPath, 'r')
-        self.unsorted_answer_key = input_file.read().split('\n')[:-1]
-        print(self.unsorted_answer_key)
-        self.sorted_answer_key = [""]*len(self.unsorted_answer_key)
-        self.sortAnswerKey()
-
-    def sortAnswerKey(self):
         linear = 0
-        for i in range(0, 16, 4):
-            for j in range(i, i + (7 * 16), 16):
-                for k in range(j, j + 4):
-                    if (k < len(self.unsorted_answer_key)):
-                        self.sorted_answer_key[linear] = self.unsorted_answer_key[k]
-                        linear = linear + 1
-                    else:
-                        break
-        print(self.sorted_answer_key)
-        print("Of here")
+        input_file = open(textPath, 'r')
+        unsorted_answer_key = input_file.read().split('\n')[:-1]
+        for i in unsorted_answer_key:
+            print(i)
+            x = str(i.split(",")[1])
+            print(x)
+            if(x =='a'):
+                unsorted_answer_key[linear] = 0
+            elif(x=='b'):
+                unsorted_answer_key[linear] = 1
+            elif(x=='c'):
+                unsorted_answer_key[linear] = 2
+            elif(x=='d'):
+                unsorted_answer_key[linear] = 3
+            linear+=1
+        print(unsorted_answer_key)
 
-    def grade(image_path):
+    def grade(self, image_path):
 
         # default_image = os.path.join("C:\\", "Users", "salma", "Desktop", "SPL-1", "main", "../Images", "test20.png")
         default_image = image_path
@@ -45,18 +44,20 @@ class grade_test(object):
 
         ############################################################
         img = cv.imread(args["image"])
-        # img = cv.resize(img, (1280, 720))
+        # img = cv.resize(img, (1920, 1080))
         cv.imshow("or", img)
         cv.waitKey(0)
         blank = np.zeros(img.shape[:2], dtype='uint8')
         output = np.zeros(img.shape[:2], dtype='uint8')
         # Convert to Grayscale
         grayscale = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+
         # Apply grayscale to Blur and reduce high frequency noise
         blurred_img = cv.GaussianBlur(grayscale, (3, 3),
                                       cv.BORDER_DEFAULT)  # the second parameter is kernel size and it is always odd tuple
         # Apply blurred image to detect edges
         edged = cv.Canny(blurred_img, 25, 80)  # 2nd and 3rd parameter are threshold values
+
 
         # Detect Contours
         # cnts, hierarchy = cv.findContours(edged, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
@@ -69,38 +70,6 @@ class grade_test(object):
                 areas.append(cont_area)
             return areas
 
-        # cnts = cv.findContours(edged.copy(), cv.RETR_EXTERNAL,
-        #                        cv.CHAIN_APPROX_SIMPLE)
-        # cnts = imutils.grab_contours(cnts)
-        # docCnt = None
-        # # ensure that at least one contour was found
-        # if len(cnts) > 0:
-        #     # sort the contours according to their size in
-        #     # descending order
-        #     cnts = sorted(cnts, key=cv.contourArea, reverse=True)
-        #     # loop over the sorted contours
-        #     for c in cnts:
-        #         # approximate the contour
-        #         peri = cv.arcLength(c, True)
-        #         approx = cv.approxPolyDP(c, 0.02 * peri, True)
-        #         # if our approximated contour has four points,
-        #         # then we can assume we have found the paper
-        #         if len(approx) == 4:
-        #             docCnt = approx
-        #             break
-        #
-        # # perspective transform
-        # if docCnt is not None:
-        #     paper = four_point_transform(img, docCnt.reshape(4, 2))
-        #     img = paper
-        #     warped = four_point_transform(blurred_img, docCnt.reshape(4, 2))
-        #     thresh = cv.threshold(warped, 0, 255,
-        #                           cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
-        # else:
-        #     thresh = cv.threshold(blurred_img, 0, 255,
-        #                           cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
-        # # masked = cv.resize(masked, (900, 820))
-        # thresh
         thresh = cv.threshold(blurred_img, 0, 255,
                               cv.THRESH_BINARY_INV | cv.THRESH_OTSU)[1]
         cnts = cv.findContours(thresh.copy(), cv.RETR_LIST,
@@ -114,33 +83,23 @@ class grade_test(object):
             (x, y, w, h) = cv.boundingRect(c)
             ar = w / float(h)
             # print(ar, w, h)
-            if w >= 22 and h >= 22 and 0.9 <= ar <= 1.1:
+            if w >= 20 and h >= 20 and 0.9 <= ar <= 1.1:
                 questionCnts.append(c)
 
         # sort the question contours top-to-bottom, then initialize
-        # the total number of correct answers
-        # cv.drawContours(img, questionCnts, -1, (0, 255, 0), 2)
-        # print(len(questionCnts))
-
-        # sort the question contours top-to-bottom, then initialize
-        # the total number of correct answers
-
+        # the total number of correct answer
         questionCnts = contours.sort_contours(questionCnts,
                                               method="top-to-bottom")[0]
 
-        # area = find_contour_areas(questionCnts)
-        # print(area)
 
         correct = 0
-        # each question has 5 possible answers, to loop over the
-        # question in batches of 5
         newCnts = []
-        for i in range(25):
-            temp = questionCnts[i * 16:(i + 1) * 16]
+        for i in range(19):
+            temp = questionCnts[i * 12:(i + 1) * 12]
             temp = temp[::-1]
             newCnts += temp
         questionCnts = newCnts
-        answers = [""]*100
+        answers = [""] * 100
         row = 0
         column = 0
         for (q, i) in enumerate(np.arange(0, len(questionCnts), 4)):
@@ -160,8 +119,8 @@ class grade_test(object):
                 # bubble area
 
                 mask = cv.bitwise_and(thresh, thresh, mask=mask)
-                cv.imshow("Circles", mask)
-                cv.waitKey(0)
+                # cv.imshow("Circles", mask)
+                # cv.waitKey(0)
                 total = cv.countNonZero(mask)
                 # if the current total has a larger number of total
                 # non-zero pixels, then we are examining the currently
@@ -169,14 +128,25 @@ class grade_test(object):
                 if bubbled is None or total > bubbled[0]:
                     bubbled = (total, i)
             print(bubbled)
-            if (q != 0 and q%4 == 0):
-                column = 0
-                row+=1
-            answers[(row*25)+column] = bubbled[1]
-            column+=1
-            print("COLUMN NO", (row*25)+column)
+            if (q != 0 and q % 4 == 0):
+                row += 1
+                column = row
+            answers[column] = bubbled[1]
+            print("COLUMN NO", column)
+            column = column + 19
 
+            color = (0, 0, 255)
+            k = unsorted_answer_key[q]
+            # check to see if the bubbled answer is correct
+            if k == answers[q]:
+                color = (0, 255, 0)
+                correct += 1
+            # draw the outline of the correct answer on the test
+            cv.drawContours(img, [cnts[k]], -1, color, 3)
 
+            print("[INFO] score: {:.2f}%".format(correct))
+            cv.putText(img, "{:.2f}%".format(correct), (10, 30),
+                        cv.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
         # loop over the sorted contours
 
         cv.drawContours(img, questionCnts, -1, (0, 255, 0), 2)
