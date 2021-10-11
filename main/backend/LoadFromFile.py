@@ -99,8 +99,6 @@ class grade_test(object):
         row = 0
         column = 0
         for (q, i) in enumerate(np.arange(0, len(questionCnts), 4)):
-            if q >= len(grade_test.unsorted_answer_key):
-                break
             # sort the contours for the current question from
             # left to right, then initialize the index of the
             # bubbled answer
@@ -126,13 +124,14 @@ class grade_test(object):
                 if bubbled is None or total > bubbled[0]:
                     bubbled = (total, i)
             print(bubbled)
-            if (q != 0 and q % 4 == 0):
+            if (q != 0 and q % 3 == 0):
                 row += 1
                 column = row
             answers[column] = bubbled[1]
             print("COLUMN NO", column)
             column = column + 19
 
+        for q in range(len(grade_test.unsorted_answer_key)):
             color = (0, 0, 255)
             k = grade_test.unsorted_answer_key[q]
             # check to see if the bubbled answer is correct
@@ -142,11 +141,10 @@ class grade_test(object):
             # draw the outline of the correct answer on the test
             cv.drawContours(img, [cnts[k]], -1, color, 3)
 
-            print(f"correct answers: {correct}")
-            print("[INFO] score: {:.2f}%".format(correct))
-            cv.putText(img, "{:.2f}%".format(correct), (10, 30),
-                       cv.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
-        # loop over the sorted contours
+        print("[INFO] score: {:.2f}".format(correct))
+        cv.putText(img, "{:.2f}".format(correct), (10, 30),
+                   cv.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+    # loop over the sorted contours
 
         cv.drawContours(img, questionCnts, -1, (0, 255, 0), 2)
         cv.imshow("Exam", img)
